@@ -1,0 +1,40 @@
+version: "3"
+services: 
+  rabbit1:
+    image: tich92/rabbitmq-windowsservercore
+    hostname: rabbit1
+    environment: 
+      RABBITMQ_ERLANG_COOKIE: "ed51013d-1711-43b4-b121-d8a7f3cff320"
+      RABBITMQ_NODENAME: rabbit1
+    ports:
+     - "4369:4369"
+     - "5671:5671"
+     - "5672:5672"
+     - "15671:15671"
+     - "15672:15672"
+     - "25672:25672"
+
+  rabbit2:
+    image: tich92/rabbitmq-windowsservercore
+    hostname: rabbit2
+    depends_on:
+     - rabbit1
+    environment: 
+      RABBITMQ_ERLANG_COOKIE: "ed51013d-1711-43b4-b121-d8a7f3cff320"
+      RABBITMQ_NODENAME: rabbit2
+      
+  rabbit3:
+    image: tich92/rabbitmq-windowsservercore
+    hostname: rabbit3
+    depends_on:
+     - rabbit1
+     - rabbit2
+    environment: 
+      RABBITMQ_ERLANG_COOKIE: "ed51013d-1711-43b4-b121-d8a7f3cff320"
+      RABBITMQ_NODENAME: rabbit3
+
+networks:
+  default: 
+    external:
+      name: rabbitmq_default
+    
