@@ -6,7 +6,7 @@ LABEL Description="RabbitMQ" Vendor="Ciklum" Version="3.7.3"
 # Erlang definition
 # Latest stable version of RabbitMQ server
 # Path to RabbitMQ configuration
-ENV ERLANG_HOME="C:\Program Files\erl9.2" \
+ENV ERLANG_HOME="C:\\erlang" \
 	RABBITMQ_VERSION="3.7.3" \
 	RABBITMQ_CONFIG_FILE="c:\\rabbitmq"
 	
@@ -19,9 +19,13 @@ RUN Set-ItemProperty -path 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Par
 #Install Chocolatey 
 RUN Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-#It may be the case when Erlang installation was successful but choco may be stuck 
-#Install Erlang
-RUN choco install erlang -y
+# It may be the case when Erlang installation was successful but choco may be stuck 
+# Install Erlang
+# RUN choco install erlang -y
+
+RUN Invoke-WebRequest -Uri "http://www.erlang.org/download/otp_win64_20.1.exe" -OutFile "c:\\erlang_install.exe" ; \
+        Start-Process -Wait -FilePath "c:\\erlang_install.exe" -ArgumentList /S, /D=$env:ERLANG_HOME ; \
+        Remove-Item -Force -Path "C:\\erlang_install.exe"
 
 # Install cUrl for healthcheck 
 RUN choco install curl -y
@@ -36,7 +40,6 @@ RUN Invoke-WebRequest -Uri "https://github.com/rabbitmq/rabbitmq-server/releases
 # Create definitions file
 COPY rabbitmq.config ./
 COPY definitions.json ./
-COPY entrypoint.ps1 ./
 
 # enable management plugin
 RUN c:\rabbitmq\sbin\rabbitmq-plugins.bat enable rabbitmq_management --offline
